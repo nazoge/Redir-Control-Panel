@@ -1,3 +1,8 @@
+# 初めに。
+このプログラムおよびreadmeはすべてAnthropic社のLLM "Claude sonnet 4"が作成しました。
+新しく公開されたClaude 4がどのような性能を持っているかテストでプロンプトを入れたところかなり出来が良く、そのままアップロードしました。
+以下、AIが生成したreadmeになります。
+
 # Redir Control Panel
 
 Debian/Ubuntu環境でredirコマンドを簡単に管理するためのWebGUIアプリケーションです。
