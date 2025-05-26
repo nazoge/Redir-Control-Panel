@@ -1,0 +1,8 @@
+Linuxアプリケーションを作ってほしいです。
+
+Debianserver環境で、webGUIでredirコマンドを制御してほしいです
+guiはroot権限で入り、GUIベースでredirコマンドの停止、実行ができるUIが欲しいです
+目的はcuiでコマンドを打って、有効化し、
+sudo ps aux | grep redirでタスクを探して
+sudo Kill -9 で削除する際
+ps auxの表が見ずらいのでwebguiを作成しようと思っています
