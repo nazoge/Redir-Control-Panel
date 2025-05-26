@@ -257,13 +257,6 @@ redir-control-panel/
 - **Process Management**: Linux ps/kill commands
 - **System Integration**: systemd
 
-### 拡張アイデア
-- 認証機能の追加
-- HTTPS対応
-- プロセス統計情報の表示
-- 設定ファイルによる管理
-- Docker対応
-- 複数サーバー管理機能
 
 ## 🆘 サポート・FAQ
 
