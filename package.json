@@ -1,0 +1,29 @@
+{
+  "name": "redir-control-panel",
+  "version": "1.0.0",
+  "description": "Web GUI for managing redir processes on Linux",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "redir",
+    "linux",
+    "port-forwarding",
+    "web-gui",
+    "process-management"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
