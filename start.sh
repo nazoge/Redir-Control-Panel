@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Redir Control Panel 起動スクリプト
+# Socat Control Panel 起動スクリプト
 
 # rootユーザーチェック
 if [ "$EUID" -ne 0 ]; then
@@ -9,7 +9,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-echo "🚀 Redir Control Panel を起動します..."
+echo "🚀 Socat Control Panel を起動します..."
 echo "📍 URL: http://localhost:3000"
 echo "⏹️  停止するには Ctrl+C を押してください"
 echo ""
