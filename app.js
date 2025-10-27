@@ -18,7 +18,7 @@ const htmlTemplate = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redir Control Panel</title>
+    <title>Socat Control Panel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -135,13 +135,12 @@ const htmlTemplate = `
 </head>
 <body>
     <div class="container">
-        <h1>🔄 Redir Control Panel</h1>
+        <h1>🔄 Socat Control Panel</h1>
         
         <div id="status"></div>
         
-        <!-- 新しいredirプロセスを開始 -->
         <div class="section">
-            <h2>📤 新しいRedirプロセスを開始</h2>
+            <h2>📤 新しいSocatプロセスを開始</h2>
             <form id="startForm">
                 <div class="form-group">
                     <label for="localPort">ローカルポート:</label>
@@ -162,20 +161,18 @@ const htmlTemplate = `
                         <option value="udp">UDP</option>
                     </select>
                 </div>
-                <button type="submit" class="success">🚀 Redirを開始</button>
+                <button type="submit" class="success">🚀 Socatを開始</button>
             </form>
         </div>
         
-        <!-- 実行中のredirプロセス一覧 -->
         <div class="section">
-            <h2>📊 実行中のRedirプロセス</h2>
+            <h2>📊 実行中のSocatプロセス</h2>
             <button onclick="refreshProcesses()" class="refresh-btn">🔄 更新</button>
             <div id="processesContainer">
                 <p>読み込み中...</p>
             </div>
         </div>
         
-        <!-- ログ表示 -->
         <div class="section">
             <h2>📝 ログ</h2>
             <div id="logContainer" style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; height: 200px; overflow-y: auto;">
@@ -239,7 +236,7 @@ const htmlTemplate = `
             const container = document.getElementById('processesContainer');
             
             if (processes.length === 0) {
-                container.innerHTML = '<p>実行中のredirプロセスはありません。</p>';
+                container.innerHTML = '<p>実行中のsocatプロセスはありません。</p>';
                 return;
             }
 
@@ -331,13 +328,13 @@ const htmlTemplate = `
                 const result = await response.json();
                 
                 if (result.success) {
-                    showStatus(\`Redirプロセスを開始しました (PID: \${result.pid})\`, 'success');
-                    addLog(\`Redirプロセスを開始: \${data.localPort} -> \${data.remoteHost}:\${data.remotePort} (\${data.protocol.toUpperCase()}) PID: \${result.pid}\`, 'success');
+                    showStatus(\`Socatプロセスを開始しました (PID: \${result.pid})\`, 'success');
+                    addLog(\`Socatプロセスを開始: \${data.localPort} -> \${data.remoteHost}:\${data.remotePort} (\${data.protocol.toUpperCase()}) PID: \${result.pid}\`, 'success');
                     e.target.reset();
                     refreshProcesses();
                 } else {
-                    showStatus('Redirプロセスの開始に失敗しました: ' + result.error, 'error');
-                    addLog('Redirプロセス開始に失敗: ' + result.error, 'error');
+                    showStatus('Socatプロセスの開始に失敗しました: ' + result.error, 'error');
+                    addLog('Socatプロセス開始に失敗: ' + result.error, 'error');
                 }
             } catch (error) {
                 showStatus('エラー: ' + error.message, 'error');
@@ -347,7 +344,7 @@ const htmlTemplate = `
 
         // ページ読み込み時にプロセス一覧を取得
         window.addEventListener('load', function() {
-            addLog('Redir Control Panelが開始されました', 'info');
+            addLog('Socat Control Panelが開始されました', 'info');
             refreshProcesses();
         });
 
@@ -363,10 +360,17 @@ app.get('/', (req, res) => {
     res.send(htmlTemplate);
 });
 
-// API: redirプロセス一覧を取得
+// API: socatプロセス一覧を取得
 app.get('/api/processes', (req, res) => {
-    exec('ps aux | grep redir | grep -v grep', (error, stdout, stderr) => {
+    // 'socat'を含み、'LISTEN'（TCP4-LISTENやUDP4-LISTENなど）も含む行を検索し、grep自身は除外する
+    const command = 'ps aux | grep socat | grep -E "TCP-LISTEN|UDP-LISTEN|TCP4-LISTEN|UDP4-LISTEN" | grep -v grep';
+    
+    exec(command, (error, stdout, stderr) => {
         if (error) {
+            // stdoutが空（プロセスがない）場合もerrorになることがあるため、stdoutもチェック
+            if (!stdout.trim()) {
+                return res.json({ success: true, processes: [] });
+            }
             return res.json({ success: false, error: error.message });
         }
 
@@ -396,7 +400,7 @@ app.get('/api/processes', (req, res) => {
     });
 });
 
-// API: redirプロセスを開始
+// API: socatプロセスを開始
 app.post('/api/start', (req, res) => {
     const { localPort, remoteHost, remotePort, protocol } = req.body;
 
@@ -405,17 +409,21 @@ app.post('/api/start', (req, res) => {
         return res.json({ success: false, error: '必要なパラメータが不足しています' });
     }
 
-    // redirコマンドを構築
+    // socatコマンドを構築
     let command;
+    let protocolString = '';
+    
     if (protocol === 'tcp') {
-        command = `redir --lport=${localPort} --caddr=${remoteHost} --cport=${remotePort}`;
+        protocolString = `TCP4-LISTEN:${localPort},fork,reuseaddr TCP4:${remoteHost}:${remotePort}`;
     } else if (protocol === 'udp') {
-        command = `redir --lport=${localPort} --caddr=${remoteHost} --cport=${remotePort} --udp`;
+        protocolString = `UDP4-LISTEN:${localPort},fork,reuseaddr UDP4:${remoteHost}:${remotePort}`;
     } else {
         return res.json({ success: false, error: '無効なプロトコルです' });
     }
+    
+    command = `socat ${protocolString}`;
 
-    // バックグラウンドでredirを実行
+    // バックグラウンドでsocatを実行
     const child = spawn('sh', ['-c', command + ' &'], { 
         detached: true,
         stdio: 'ignore'
@@ -425,9 +433,9 @@ app.post('/api/start', (req, res) => {
 
     setTimeout(() => {
         // プロセスが正常に開始されたか確認
-        exec(`ps aux | grep "redir.*${localPort}" | grep -v grep`, (error, stdout, stderr) => {
+        exec(`ps aux | grep "socat.*LISTEN:${localPort}" | grep -v grep`, (error, stdout, stderr) => {
             if (error || !stdout.trim()) {
-                return res.json({ success: false, error: 'redirプロセスの開始に失敗しました' });
+                return res.json({ success: false, error: 'socatプロセスの開始に失敗しました' });
             }
 
             const lines = stdout.trim().split('\n');
@@ -459,7 +467,7 @@ app.post('/api/kill', (req, res) => {
 
 // サーバー起動
 app.listen(PORT, () => {
-    console.log(`🚀 Redir Control Panel が http://localhost:${PORT} で起動しました`);
+    console.log(`🚀 Socat Control Panel が http://localhost:${PORT} で起動しました`);
     console.log('⚠️  このアプリケーションはroot権限で実行してください');
 });
 
