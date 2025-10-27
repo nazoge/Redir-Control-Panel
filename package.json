@@ -1,7 +1,7 @@
 {
-  "name": "redir-control-panel",
+  "name": "socat-control-panel",
   "version": "1.0.0",
-  "description": "Web GUI for managing redir processes on Linux",
+  "description": "Web GUI for managing socat processes on Linux",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -15,7 +15,7 @@
     "nodemon": "^3.0.1"
   },
   "keywords": [
-    "redir",
+    "socat",
     "linux",
     "port-forwarding",
     "web-gui",
