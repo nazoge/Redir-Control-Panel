@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Redir Control Panel セットアップスクリプト
-echo "🔧 Redir Control Panel セットアップを開始します..."
+# Socat Control Panel セットアップスクリプト
+echo "🔧 Socat Control Panel セットアップを開始します..."
 
 # rootユーザーチェック
 if [ "$EUID" -ne 0 ]; then
@@ -26,12 +26,12 @@ else
     echo "✅ Node.js は既にインストールされています ($(node --version))"
 fi
 
-# redirがインストールされているかチェック
-if ! command -v redir &> /dev/null; then
-    echo "redirをインストール中..."
-    apt-get install -y redir
+# socatがインストールされているかチェック
+if ! command -v socat &> /dev/null; then
+    echo "socatをインストール中..."
+    apt-get install -y socat
 else
-    echo "✅ redir は既にインストールされています"
+    echo "✅ socat は既にインストールされています"
 fi
 
 # npmパッケージのインストール
@@ -46,9 +46,9 @@ chmod +x start.sh
 
 # systemd サービスファイルの作成
 echo "⚙️  systemd サービスを作成中..."
-cat > /etc/systemd/system/redir-control.service << EOF
+cat > /etc/systemd/system/socat-control.service << EOF
 [Unit]
-Description=Redir Control Panel
+Description=Socat Control Panel
 After=network.target
 
 [Service]
@@ -75,9 +75,9 @@ echo "  手動起動: sudo bash start.sh"
 echo "  または: sudo node app.js"
 echo ""
 echo "🔧 サービスとして起動する場合:"
-echo "  sudo systemctl enable redir-control"
-echo "  sudo systemctl start redir-control"
-echo "  sudo systemctl status redir-control"
+echo "  sudo systemctl enable socat-control"
+echo "  sudo systemctl start socat-control"
+echo "  sudo systemctl status socat-control"
 echo ""
 echo "🌐 アクセス URL: http://localhost:3000"
 echo "⚠️  必ずroot権限で実行してください"
